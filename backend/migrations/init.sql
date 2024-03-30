@@ -1,0 +1,2 @@
+CREATE DATABASE paruu_dev;
+GRANT ALL PRIVILEGES ON DATABASE paruu_dev TO paruu;
