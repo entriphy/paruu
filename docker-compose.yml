@@ -1,0 +1,43 @@
+version: "2"
+services:
+  frontend:
+    container_name: paruu_frontend
+    image: node:20-slim
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/frontend
+    ports:
+      - 5173:5173
+    working_dir: /frontend
+    command: >
+      bash -c "npm install -g pnpm && pnpm install && pnpm dev --host"
+  backend:
+    container_name: paruu_backend
+    image: node:20-slim
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_USER: paruu
+      POSTGRES_PASSWORD: paruu
+      POSTGRES_PORT: 5432
+      PARUU_PORT: 3002
+    ports:
+      - 3002:3002
+    volumes:
+      - ./backend:/backend
+    working_dir: /backend
+    command: >
+      bash -c "npm install -g pnpm && pnpm install && pnpm dev"
+  postgres:
+    container_name: paruu_db
+    image: postgres:16
+    environment:
+      POSTGRES_USER: paruu
+      POSTGRES_PASSWORD: paruu
+    ports:
+      - 5432:5432
+    volumes:
+      - ./backend/db:/var/lib/postgresql/data
+      - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+  
