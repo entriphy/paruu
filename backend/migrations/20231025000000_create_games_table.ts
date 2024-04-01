@@ -1,23 +1,23 @@
 import { Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
-    await db.schema.createTable("games")
+    await db.schema.createTable("game")
         .addColumn("id", "varchar", (col) => col.notNull().primaryKey())
         .addColumn("title", "varchar", (col) => col.notNull())
         .addColumn("description", "varchar", (col) => col.notNull())
         .execute();
     
-    await db.schema.createTable("sections")
+    await db.schema.createTable("section")
         .addColumn("id", "varchar", (col) => col.notNull())
-        .addColumn("game_id", "varchar", (col) => col.notNull().references("games.id"))
+        .addColumn("game_id", "varchar", (col) => col.notNull().references("game.id"))
         .addColumn("name", "varchar", (col) => col.notNull())
         .addColumn("description", "varchar", (col) => col.notNull())
         .addPrimaryKeyConstraint("sections_primary_key", ["id", "game_id"])
         .execute();
 
-    await db.schema.createTable("entries")
+    await db.schema.createTable("entry")
         .addColumn("address", "integer", (col) => col.notNull())
-        .addColumn("game_id", "varchar", (col) => col.notNull().references("games.id"))
+        .addColumn("game_id", "varchar", (col) => col.notNull().references("game.id"))
         .addColumn("section", "varchar")
         .addColumn("name", "varchar")
         .addColumn("implemented", "boolean", (col) => col.notNull().defaultTo(false))
@@ -35,18 +35,18 @@ export async function up(db: Kysely<any>): Promise<void> {
         )
         .execute();
     
-    await db.schema.createTable("tokens")
+    await db.schema.createTable("token")
         .addColumn("token", "varchar", (col) => col.notNull().primaryKey())
-        .addColumn("game_id", "varchar", (col) => col.notNull().references("games.id"))
+        .addColumn("game_id", "varchar", (col) => col.notNull().references("game.id"))
         .addColumn("github_id", "integer", (col) => col.notNull())
         .addColumn("description", "varchar")
         .execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-    await db.schema.dropTable("entries").execute();
-    await db.schema.dropTable("sections").execute();
-    await db.schema.dropTable("tokens").execute();
-    await db.schema.dropTable("games").execute();
+    await db.schema.dropTable("entry").execute();
+    await db.schema.dropTable("section").execute();
+    await db.schema.dropTable("token").execute();
+    await db.schema.dropTable("game").execute();
 }
 

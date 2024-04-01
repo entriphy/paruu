@@ -44,7 +44,7 @@ function SectionCard({ game_id, section }) {
         />
       </CardContent>
       <CardActions>
-        <Button href={`/sections/${g}/${s.id}`} size="small">View entries</Button>
+        <Button href={`/entries/${g}/${s.id}`} size="small">View entries</Button>
       </CardActions>
     </Card>
   );

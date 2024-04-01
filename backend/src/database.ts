@@ -2,9 +2,9 @@ import { Pool } from "pg";
 import { Generated, Kysely, PostgresDialect } from "kysely";
 
 export interface Database {
-    games: GamesTable,
-    sections: SectionsTable,
-    entries: EntriesTable
+    game: GamesTable,
+    section: SectionsTable,
+    entry: EntriesTable
 };
 
 export interface GamesTable {
@@ -36,7 +36,7 @@ export interface EntriesTable {
 export interface DecompStats {
     decomp: number;
     total: number;
-}
+};
 
 const dialect = new PostgresDialect({
     pool: new Pool({
@@ -47,7 +47,7 @@ const dialect = new PostgresDialect({
         port: parseInt(process.env.POSTGRES_PORT || "5432"),
         max: 10
     })
-})
+});
 
 export const db = new Kysely<Database>({
     dialect

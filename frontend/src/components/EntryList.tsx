@@ -59,7 +59,7 @@ function EntryCard({ entry }) {
     const [data, setData] = useState<Entry[]>([]);
     const [isDataLoaded, setIsDataLoaded] = React.useState(false);
     useEffect(() => {
-      fetch(`http://localhost:3001/section/${g}/${s}`)
+      fetch(`http://localhost:3001/entry/${g}/${s}`)
         .then(async (res) => {
           const json = await res.json();
           setData(json);

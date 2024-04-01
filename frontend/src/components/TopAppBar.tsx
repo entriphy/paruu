@@ -51,8 +51,9 @@ export default function TopAppBar() {
           color="inherit"
           aria-label="menu"
           sx={{ mr: 2 }}
+          onClick={toggleDrawer(true)}
         >
-          <MenuIcon onClick={toggleDrawer(true)} />
+          <MenuIcon />
           <Drawer open={open} onClose={toggleDrawer(false)}>
           <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>

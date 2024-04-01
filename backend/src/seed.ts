@@ -17,27 +17,43 @@ async function asyncParse(input: string): Promise<string[][]> {
 
 async function seedGames(db: Kysely<Database>): Promise<void> {
     console.log("Clearing entries...");
-    await db.deleteFrom("entries")
+    await db.deleteFrom("entry")
         .where((eb) => eb.or([
             eb("game_id", "=", "dtp"),
             eb("game_id", "=", "lv")
         ]))
         .execute();
     console.log("Clearing sections...");
-    await db.deleteFrom("sections")
+    await db.deleteFrom("section")
         .where((eb) => eb.or([
             eb("game_id", "=", "dtp"),
             eb("game_id", "=", "lv")
         ]))
         .execute();
     console.log("Clearing games...");
-    await db.deleteFrom("games")
+    await db.deleteFrom("game")
         .execute();
 
     console.log("Inserting games...");
-    await db.insertInto("games").values([
+    await db.insertInto("game").values([
         { id: "dtp", title: "Klonoa: Door to Phantomile", description: "Sony PlayStation" },
         { id: "lv", title: "Klonoa 2: Lunatea's Veil", description: "Sony PlayStation 2" },
+    ]).execute();
+}
+
+async function seedDTP(db: Kysely<Database>): Promise<void> {
+    console.log("Clearing entries...");
+    await db.deleteFrom("entry")
+        .where("game_id", "=", "dtp")
+        .execute();
+    console.log("Clearing sections...");
+    await db.deleteFrom("section")
+        .where("game_id", "=", "dtp")
+        .execute();
+
+    console.log("Inserting sections...");
+    await db.insertInto("section").values([
+        { game_id: "dtp", id: "test", name: "Test", description: "Test" }
     ]).execute();
 }
 
@@ -73,23 +89,21 @@ async function seedLV(db: Kysely<Database>): Promise<void> {
     ];
 
     console.log("Clearing entries...");
-    await db.deleteFrom("entries")
+    await db.deleteFrom("entry")
         .where("game_id", "=", "lv")
         .execute();
     console.log("Clearing sections...");
-    await db.deleteFrom("sections")
+    await db.deleteFrom("section")
         .where("game_id", "=", "lv")
         .execute();
 
     console.log("Inserting sections...");
-    for (const section of sections) {
-        await db.insertInto("sections").values([
-            { game_id: "lv", id: section.id, name: section.name, description: section.description }
-        ]).execute();
-    }
+    await db.insertInto("section").values(sections.map((section) => {
+        return { game_id: "lv", id: section.id, name: section.name, description: section.description }
+    })).execute();
 
     console.log("Parsing symbols...");
-    const entries: { [address: number]: InsertObject<Database, "entries"> } = {}
+    const entries: { [address: number]: InsertObject<Database, "entry"> } = {}
     const symbolsAddrs = await fetch(symbolAddrsUrl);
     const symbols = (await symbolsAddrs.text()).matchAll(symbolAddrsRegex);
     for (const symbol of symbols) {
@@ -130,7 +144,7 @@ async function seedLV(db: Kysely<Database>): Promise<void> {
     }
 
     console.log("Inserting entries...");
-    await db.insertInto("entries").values(Object.values(entries)).execute();
+    await db.insertInto("entry").values(Object.values(entries)).execute();
 }
 
 const seeds: {
@@ -138,6 +152,7 @@ const seeds: {
     seed: (db: Kysely<any>) => Promise<void>;
 }[] = [
     { name: "Games", seed: seedGames },
+    { name: "Klonoa: Door to Phantomile", seed: seedDTP},
     { name: "Klonoa 2: Lunatea's Veil", seed: seedLV}
 ]
 

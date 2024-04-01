@@ -23,7 +23,7 @@ app.get("/game", async (req: Request, res: Response) => {
       t1.*,
       CAST(SUM(CASE WHEN t1.id = t2.game_id AND (t2.matching OR t2.ez OR t2.dc_progress = 100.0) THEN 1 ELSE 0 END) AS INT) as decomp,
       CAST(SUM(CASE WHEN t1.id = t2.game_id THEN 1 ELSE 0 END) AS INT) as total
-    FROM games AS t1, entries AS t2
+    FROM game AS t1, entry AS t2
     GROUP BY t1.id
   `;
   res.json((await query.execute(db)).rows);
@@ -35,7 +35,7 @@ app.get("/section/:game", async (req: Request, res: Response) => {
       t1.*,
       CAST(SUM(CASE WHEN t1.game_id = t2.game_id AND t1.id = t2.section AND (t2.matching OR t2.ez OR t2.dc_progress = 100.0) THEN 1 ELSE 0 END) AS INT) as decomp,
       CAST(SUM(CASE WHEN t1.game_id = t2.game_id AND t1.id = t2.section THEN 1 ELSE 0 END) AS INT) as total
-    FROM sections AS t1, entries AS t2
+    FROM section AS t1, entry AS t2
     WHERE t1.game_id = ${req.params.game}
     GROUP BY t1.id, t1.game_id
   `;
@@ -55,8 +55,8 @@ app.get("/section/:game", async (req: Request, res: Response) => {
   res.json((await query.execute(db)).rows);
 });
 
-app.get("/section/:game/:section", async (req: Request, res: Response) => {
-  let query = db.selectFrom("entries")
+app.get("/entry/:game/:section", async (req: Request, res: Response) => {
+  let query = db.selectFrom("entry")
     .selectAll()
     .orderBy("address", "asc")
     .where("game_id", "=", req.params.game);
