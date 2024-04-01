@@ -9,8 +9,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
   { path: "/", element: <Games /> },
+  { path: "/games", element: <Games /> },
   { path: "/sections/:gameId", element: <Sections /> },
-  { path: "/sections/:gameId/:section", element: <Entries /> },
+  { path: "/entries/:gameId/:section", element: <Entries /> },
 ]);
 
 function Main() {
