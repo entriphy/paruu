@@ -15,7 +15,7 @@ interface Game {
   description: string;
   decomp: number;
   total: number;
-};
+}
 
 function GameCard({ game }) {
   const g = game as Game;
@@ -23,10 +23,7 @@ function GameCard({ game }) {
 
   return (
     <Card>
-      <CardMedia
-        sx={{ height: 200 }}
-        image={`/img/games/${game.id}.png`}
-      />
+      <CardMedia sx={{ height: 200 }} image={`/img/games/${game.id}.png`} />
       <CardContent>
         <Typography variant="h5" component="div">
           {g.title}
@@ -35,22 +32,26 @@ function GameCard({ game }) {
           {g.description}
         </Typography>
         <Typography noWrap variant="body2">
-          {g.decomp}/{g.total} (
-          {progress.toFixed(2)}%)
-          functions decompiled
+          {g.decomp}/{g.total} ({progress.toFixed(2)}%) functions decompiled
         </Typography>
         <LinearProgress
           variant="determinate"
           value={progress}
           color="success"
-          sx={{backgroundColor: "red"}}
+          sx={{ backgroundColor: "red" }}
         />
       </CardContent>
       <CardActions>
-        <Button disabled={g.total === 0} href={`/sections/${g.id}`} size="small">View Progress</Button>
+        <Button
+          disabled={g.total === 0}
+          href={`/sections/${g.id}`}
+          size="small"
+        >
+          View Progress
+        </Button>
       </CardActions>
     </Card>
-  )
+  );
 }
 
 export default function GamesList() {
@@ -71,25 +72,19 @@ export default function GamesList() {
         console.log(error);
         setError(err);
         setIsDataLoaded(true);
-      })
+      });
   }, []);
 
   if (!isDataLoaded) {
-    return (
-      <CircularProgress />
-    )
+    return <CircularProgress />;
   }
 
   if (error !== undefined) {
-    return (
-      <Typography>Error: {error.toString()}</Typography>
-    )
+    return <Typography>Error: {error.toString()}</Typography>;
   }
 
   if (data.length === 0) {
-    return (
-      <Typography>No games found.</Typography>
-    );
+    return <Typography>No games found.</Typography>;
   }
 
   return (

@@ -15,7 +15,7 @@ interface Section {
   description: string;
   decomp: number;
   total: number;
-};
+}
 
 function SectionCard({ game_id, section }) {
   const g = game_id as string;
@@ -32,19 +32,19 @@ function SectionCard({ game_id, section }) {
           {s.description}
         </Typography>
         <Typography noWrap variant="body2">
-          {s.decomp}/{s.total} (
-          {progress.toFixed(2)}%)
-          functions decompiled
+          {s.decomp}/{s.total} ({progress.toFixed(2)}%) functions decompiled
         </Typography>
         <LinearProgress
           variant="determinate"
           value={progress}
           color="success"
-          sx={{backgroundColor: "red"}}
+          sx={{ backgroundColor: "red" }}
         />
       </CardContent>
       <CardActions>
-        <Button href={`/entries/${g}/${s.id}`} size="small">View entries</Button>
+        <Button href={`/entries/${g}/${s.id}`} size="small">
+          View entries
+        </Button>
       </CardActions>
     </Card>
   );
@@ -55,24 +55,21 @@ export default function SectionList({ gameId }) {
   const [data, setData] = useState<Section[]>([]);
   const [isDataLoaded, setIsDataLoaded] = React.useState(false);
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/section/${g}`)
-      .then(async (res) => {
-        const json = await res.json();
-        setData(json);
-        setIsDataLoaded(true);
-      });
+    fetch(
+      `${import.meta.env.VITE_API_URL || "http://localhost:3001"}/section/${g}`,
+    ).then(async (res) => {
+      const json = await res.json();
+      setData(json);
+      setIsDataLoaded(true);
+    });
   }, []);
 
   if (!isDataLoaded) {
-    return (
-      <CircularProgress />
-    )
+    return <CircularProgress />;
   }
 
   if (data.length === 0) {
-    return (
-      <Typography>No sections found.</Typography>
-    );
+    return <Typography>No sections found.</Typography>;
   }
 
   return (
