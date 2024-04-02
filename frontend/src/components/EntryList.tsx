@@ -59,7 +59,7 @@ function EntryCard({ entry }) {
     const [data, setData] = useState<Entry[]>([]);
     const [isDataLoaded, setIsDataLoaded] = React.useState(false);
     useEffect(() => {
-      fetch(`http://localhost:3001/entry/${g}/${s}`)
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/section/${g}/${s}`)
         .then(async (res) => {
           const json = await res.json();
           setData(json);
@@ -80,7 +80,7 @@ function EntryCard({ entry }) {
     }
   
     return (
-      <Box sx={{ px: { xl: 48 } }}>
+      <Box sx={{ px: { xl: 64 } }}>
         {data.map((a, i) => (
           <Box key={a.address} sx={{ p: 1 }}>
             <EntryCard entry={a} />

@@ -55,7 +55,7 @@ export default function SectionList({ gameId }) {
   const [data, setData] = useState<Section[]>([]);
   const [isDataLoaded, setIsDataLoaded] = React.useState(false);
   useEffect(() => {
-    fetch(`http://localhost:3001/section/${g}`)
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/section/${g}`)
       .then(async (res) => {
         const json = await res.json();
         setData(json);

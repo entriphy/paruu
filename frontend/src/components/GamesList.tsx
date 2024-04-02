@@ -57,8 +57,11 @@ export default function GamesList() {
   const [data, setData] = useState<Game[]>([]);
   const [error, setError] = useState<string>();
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  console.log(import.meta.env.MODE);
+  console.log(import.meta.env);
+
   useEffect(() => {
-    fetch("http://localhost:3001/game")
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/game`)
       .then(async (res) => {
         const json = await res.json();
         setData(json);
