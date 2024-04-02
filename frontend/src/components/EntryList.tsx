@@ -59,7 +59,7 @@ function EntryCard({ entry }) {
     const [data, setData] = useState<Entry[]>([]);
     const [isDataLoaded, setIsDataLoaded] = React.useState(false);
     useEffect(() => {
-      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/section/${g}/${s}`)
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/entry/${g}/${s}`)
         .then(async (res) => {
           const json = await res.json();
           setData(json);
