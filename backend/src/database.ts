@@ -4,7 +4,8 @@ import { Generated, Kysely, PostgresDialect } from "kysely";
 export interface Database {
     game: GamesTable,
     section: SectionsTable,
-    entry: EntriesTable
+    entry: EntriesTable,
+    token: TokensTable
 };
 
 export interface GamesTable {
@@ -35,9 +36,22 @@ export interface EntriesTable {
     source_file: string | null;
 };
 
+export interface TokensTable {
+    token: string;
+    game_id: string;
+    github_id: number;
+    description: string | null;
+};
+
 export interface DecompStats {
     decomp: number;
     total: number;
+};
+
+export interface EntryUpdate {
+    address: number;
+    matching: boolean;
+    source_file: string;
 };
 
 const dialect = new PostgresDialect({

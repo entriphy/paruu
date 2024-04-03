@@ -37,5 +37,6 @@ app.get("/", (c: Context) => c.text("rupurudu!"));
 app.get("/game", async (c: Context) => c.json(await (new App(createDb(c), true)).getGames()));
 app.get("/section/:game", async (c: Context) => c.json(await (new App(createDb(c), true)).getSections(c.req.param("game"))));
 app.get("/entry/:game/:section", async (c: Context) => c.json(await (new App(createDb(c), true)).getEntries(c.req.param("game"), c.req.param("section"))));
+app.post("/entry/:game", async (c: Context) => c.json(await (new App(createDb(c), true)).updateEntries(c.req.param("game"), await c.req.json(), c.req.header("Authorization") || "")));
 
 export default app;

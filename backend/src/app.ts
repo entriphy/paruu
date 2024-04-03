@@ -1,5 +1,5 @@
 import { Kysely, sql } from "kysely";
-import { Database, DecompStats, EntriesTable, GamesTable, SectionsTable } from "./database";
+import { Database, DecompStats, EntryUpdate, GamesTable, SectionsTable } from "./database";
 
 export default class App {
     private db: Kysely<Database>;
@@ -75,6 +75,34 @@ export default class App {
         if (this.destroyAfterReq) await this.destroy();
 
         return res;
+    }
+
+    public async updateEntries(game: string, entries: EntryUpdate[], token: string) {
+        let tokenQuery = await this.db.selectFrom("token")
+            .select("game_id")
+            .where("token", "=", token)
+            .where("game_id", "=", game)
+            .execute();
+        if (tokenQuery.length === 0) {
+            return {"success": false, "error": "Unauthorized token"}
+        }
+
+        let query = this.db.updateTable("entry")
+            .set("implemented", (eb) => eb.case().when("address", "in", entries.map((e) => e.address)).then(true).else(false).end())
+            .set("source_file", (eb) => {
+                let c: any = eb.case(); // :(
+                entries.forEach((e) => {
+                    c = c.when("address", "=", e.address).then(e.source_file);
+                });
+                return c.end();
+            })
+            .set("matching", (eb) => eb.case().when("address", "in", entries.filter((v) => v.matching).map((e) => e.address)).then(true).else(false).end())
+            .where("game_id", "=", game);
+        
+        const res = await query.execute();
+        if (this.destroyAfterReq) await this.destroy();
+
+        return {"success": true};
     }
 
     public async destroy() {

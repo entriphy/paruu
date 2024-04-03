@@ -6,7 +6,9 @@ export async function up(db: Kysely<any>): Promise<void> {
         .execute();
     await db.schema.alterTable("entry")
         .addCheckConstraint("check_src", sql`
-            implemented = TRUE AND source_file IS NOT NULL
+            (implemented = TRUE AND source_file IS NOT NULL)
+            OR
+            implemented = FALSE
         `)
         .execute();
 }
