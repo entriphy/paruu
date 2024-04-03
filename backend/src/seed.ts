@@ -37,7 +37,7 @@ async function seedGames(db: Kysely<Database>): Promise<void> {
     console.log("Inserting games...");
     await db.insertInto("game").values([
         { id: "dtp", title: "Klonoa: Door to Phantomile", description: "Sony PlayStation" },
-        { id: "lv", title: "Klonoa 2: Lunatea's Veil", description: "Sony PlayStation 2" },
+        { id: "lv", title: "Klonoa 2: Lunatea's Veil", description: "Sony PlayStation 2", repository: "https://github.com/entriphy/kl2_lv_decomp" },
     ]).execute();
 }
 

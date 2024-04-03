@@ -11,6 +11,7 @@ export interface GamesTable {
     id: string;
     title: string;
     description: string;
+    repository: string | null;
 };
 
 export interface SectionsTable {
@@ -31,6 +32,7 @@ export interface EntriesTable {
     note: string | null;
     dc_id: string | null;
     dc_progress: number | null;
+    source_file: string | null;
 };
 
 export interface DecompStats {
