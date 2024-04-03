@@ -35,7 +35,7 @@ function EntryCard({ entry }) {
     <Accordion>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <div style={{ flexDirection: "column" }}>
-          <Typography color={isMatching(e) ? "#4CAF50" : ""}>
+          <Typography color={isMatching(e) ? "success.main" : ""}>
             {e.name !== null
               ? e.name
               : `func_${e.address.toString(16).padStart(8, "0").toUpperCase()}`}

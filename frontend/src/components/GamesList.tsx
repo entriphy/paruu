@@ -15,6 +15,7 @@ interface Game {
   description: string;
   decomp: number;
   total: number;
+  sections: { [sectionId: string]: string };
 }
 
 function GameCard({ game }) {
@@ -69,7 +70,7 @@ export default function GamesList() {
         setIsDataLoaded(true);
       })
       .catch(async (err) => {
-        console.log(error);
+        console.log(err);
         setError(err);
         setIsDataLoaded(true);
       });

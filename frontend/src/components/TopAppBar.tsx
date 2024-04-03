@@ -1,3 +1,4 @@
+import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -5,29 +6,84 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
-import React from "react";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import Divider from "@mui/material/Divider";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import CircularProgress from "@mui/material/CircularProgress";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import Collapse from "@mui/material/Collapse";
+import { useParams } from "react-router-dom";
+
+interface Game {
+  id: string;
+  title: string;
+  description: string;
+  decomp: number;
+  total: number;
+  sections: { [sectionId: string]: string };
+}
+
+function GameItem({ game }: { game: Game }) {
+  let { gameId, section } = useParams();
+  const [open, setOpen] = React.useState(gameId === game.id);
+
+  return (
+    <>
+      <ListItem disablePadding>
+        <ListItemButton onClick={() => setOpen(!open)}>
+          <ListItemText primary={game.title} secondary={game.description} />
+          {open ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+      </ListItem>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          {game.sections === null && (
+            <ListItemButton disabled sx={{ pl: 4 }}>
+              <ListItemText primary="No sections found" />
+            </ListItemButton>
+          )}
+          {game.sections !== null &&
+            Object.entries(game.sections).map((v, i, a) => (
+              <ListItemButton key={v[0]} sx={{ pl: 4 }} href={`/entries/${game.id}/${v[0]}`} selected={section === v[0]}>
+                <ListItemText primary={v[1]} />
+              </ListItemButton>
+            ))}
+        </List>
+      </Collapse>
+    </>
+  );
+}
 
 export default function TopAppBar() {
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [open, setOpen] = React.useState(false);
+  const [games, setGames] = React.useState<Game[]>([]);
+  const [gamesLoaded, setGamesLoaded] = React.useState(false);
+  const [gamesError, setGamesError] = React.useState<string>();
+  let lock = false;
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
+    if (newOpen && !lock && !gamesLoaded) {
+      lock = true;
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/game`)
+        .then(async (res) => {
+          const json = await res.json();
+          setGames(json);
+          setGamesLoaded(true);
+        })
+        .catch(async (err) => {
+          console.log(err);
+          setGamesError(err);
+          setGamesLoaded(true);
+        });
+    }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,37 +112,25 @@ export default function TopAppBar() {
           <MenuIcon />
           <Drawer open={open} onClose={toggleDrawer(false)}>
             <Box
-              sx={{ width: 250 }}
+              sx={{ width: 300 }}
               role="presentation"
               onClick={toggleDrawer(false)}
             >
-              <List>
-                {["Inbox", "Starred", "Send email", "Drafts"].map(
-                  (text, index) => (
-                    <ListItem key={text} disablePadding>
-                      <ListItemButton>
-                        <ListItemIcon>
-                          {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                        </ListItemIcon>
-                        <ListItemText primary={text} />
-                      </ListItemButton>
-                    </ListItem>
-                  ),
-                )}
-              </List>
-              <Divider />
-              <List>
-                {["All mail", "Trash", "Spam"].map((text, index) => (
-                  <ListItem key={text} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                      </ListItemIcon>
-                      <ListItemText primary={text} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </List>
+              {!gamesLoaded && (
+                <Box sx={{ paddingLeft: 4, paddingTop: 4 }}>
+                  <CircularProgress />
+                </Box>
+              )}
+              {gamesLoaded && gamesError !== undefined && (
+                <Typography>Error: {gamesError.toString()}</Typography>
+              )}
+              {gamesLoaded && gamesError === undefined && (
+                <List>
+                  {games.map((game, i) => (
+                    <GameItem game={game} key={game.id} />
+                  ))}
+                </List>
+              )}
             </Box>
           </Drawer>
         </IconButton>
