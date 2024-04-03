@@ -13,11 +13,22 @@ export default class App {
     public async getGames() {
         const query = sql<GamesTable & DecompStats>`
             SELECT
-                t1.*,
-                CAST(SUM(CASE WHEN t1.id = t2.game_id AND (t2.matching OR t2.ez OR t2.dc_progress = 100.0) THEN 1 ELSE 0 END) AS INT) as decomp,
-                CAST(SUM(CASE WHEN t1.id = t2.game_id THEN 1 ELSE 0 END) AS INT) as total
-            FROM game AS t1, entry AS t2
-            GROUP BY t1.id
+                game.*,
+                COALESCE(f.decomp, 0) AS decomp,
+                COALESCE(f.total, 0) AS total,
+                g.sections
+            FROM game
+            LEFT JOIN (SELECT 
+                        game_id, 
+                        CAST(SUM(CASE WHEN entry.matching OR entry.ez OR entry.dc_progress = 100.0 THEN 1 ELSE 0 END) AS INT) as decomp,
+                        CAST(COUNT(entry.address) AS INT) AS total
+                    FROM entry
+                    GROUP BY game_id) f on game.id = f.game_id
+            LEFT JOIN (SELECT 
+                        game_id, 
+                        json_object_agg(id, name) as sections
+                    FROM section
+                    GROUP BY section.game_id) g ON game.id = g.game_id
         `;
 
         const res = (await query.execute(this.db)).rows;
