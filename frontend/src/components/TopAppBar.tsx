@@ -18,6 +18,8 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Collapse from "@mui/material/Collapse";
 import { useParams } from "react-router-dom";
+import Button from "@mui/material/Button";
+import Snackbar from "@mui/material/Snackbar";
 
 interface Game {
   id: string;
@@ -71,6 +73,7 @@ export default function TopAppBar() {
   const [games, setGames] = React.useState<Game[]>([]);
   const [gamesLoaded, setGamesLoaded] = React.useState(false);
   const [gamesError, setGamesError] = React.useState<string>();
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   let lock = false;
 
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -155,7 +158,14 @@ export default function TopAppBar() {
         </Typography>
         {auth && (
           <div>
-            <IconButton
+            <Button variant="outlined" onClick={() => setSnackbarOpen(true)}>Sign in with GitHub</Button>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={3000}
+              onClose={() => setSnackbarOpen(false)}
+              message="Coming soon :)"
+            />
+            {/* <IconButton
               size="large"
               aria-label="account of current user"
               aria-controls="menu-appbar"
@@ -164,7 +174,7 @@ export default function TopAppBar() {
               color="inherit"
             >
               <AccountCircle />
-            </IconButton>
+            </IconButton> */}
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}
