@@ -39,13 +39,20 @@ export default class App {
 
     public async getSections(game: string) {
         const query = sql<SectionsTable & DecompStats>`
-            SELECT
-                t1.*,
-                CAST(SUM(CASE WHEN t1.game_id = t2.game_id AND t1.id = t2.section AND (t2.matching OR t2.ez OR t2.dc_progress = 100.0) THEN 1 ELSE 0 END) AS INT) as decomp,
-                CAST(SUM(CASE WHEN t1.game_id = t2.game_id AND t1.id = t2.section THEN 1 ELSE 0 END) AS INT) as total
-            FROM section AS t1, entry AS t2
-            WHERE t1.game_id = ${game}
-            GROUP BY t1.id, t1.game_id
+            SELECT 
+                section.*,
+                e.decomp,
+                e.total
+            FROM section
+            LEFT JOIN (SELECT 
+                        game_id,
+                        section,
+                        CAST(SUM(CASE WHEN matching OR ez OR dc_progress = 100.0 THEN 1 ELSE 0 END) AS INT) AS decomp,
+                        CAST(COUNT(address) AS INT) AS total
+                    FROM entry
+                    GROUP BY game_id, section) e ON section.game_id = e.game_id AND section.id = e.section
+            WHERE section.game_id = 'lv'
+            GROUP BY section.id, section.game_id, e.decomp, e.total
         `;
 
         const res = (await query.execute(this.db)).rows;;
