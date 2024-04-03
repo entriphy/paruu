@@ -49,7 +49,12 @@ function GameItem({ game }: { game: Game }) {
           )}
           {game.sections !== null &&
             Object.entries(game.sections).map((v, i, a) => (
-              <ListItemButton key={v[0]} sx={{ pl: 4 }} href={`/entries/${game.id}/${v[0]}`} selected={section === v[0]}>
+              <ListItemButton
+                key={v[0]}
+                sx={{ pl: 4 }}
+                href={`/entries/${game.id}/${v[0]}`}
+                selected={section === v[0]}
+              >
                 <ListItemText primary={v[1]} />
               </ListItemButton>
             ))}
@@ -116,21 +121,32 @@ export default function TopAppBar() {
               role="presentation"
               onClick={toggleDrawer(false)}
             >
-              {!gamesLoaded && (
-                <Box sx={{ paddingLeft: 4, paddingTop: 4 }}>
-                  <CircularProgress />
-                </Box>
-              )}
-              {gamesLoaded && gamesError !== undefined && (
-                <Typography>Error: {gamesError.toString()}</Typography>
-              )}
-              {gamesLoaded && gamesError === undefined && (
-                <List>
-                  {games.map((game, i) => (
+              <List>
+                <ListItem disablePadding>
+                  <ListItemButton href="/">
+                    <ListItemText primary="Home" />
+                  </ListItemButton>
+                </ListItem>
+                {!gamesLoaded && (
+                  <Box sx={{ paddingLeft: 4, paddingTop: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                )}
+                {gamesLoaded && gamesError !== undefined && (
+                  <ListItem disablePadding>
+                    <ListItemButton disabled>
+                      <ListItemText
+                        primary={`Error while fetching games: ${gamesError.toString()}`}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                )}
+                {gamesLoaded &&
+                  gamesError === undefined &&
+                  games.map((game, i) => (
                     <GameItem game={game} key={game.id} />
                   ))}
-                </List>
-              )}
+              </List>
             </Box>
           </Drawer>
         </IconButton>
