@@ -59,8 +59,6 @@ export default function GamesList() {
   const [data, setData] = useState<Game[]>([]);
   const [error, setError] = useState<string>();
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-  console.log(import.meta.env.MODE);
-  console.log(import.meta.env);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/game`)
@@ -70,7 +68,7 @@ export default function GamesList() {
         setIsDataLoaded(true);
       })
       .catch(async (err) => {
-        console.log(err);
+        console.error(err);
         setError(err);
         setIsDataLoaded(true);
       });

@@ -23,7 +23,7 @@ function Main() {
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
           primary: {
-            main: prefersDarkMode ? yellow[400] : yellow[600],
+            main: prefersDarkMode ? yellow[400] : yellow[700],
           },
           secondary: {
             main: blue[400],

@@ -79,7 +79,7 @@ export default function TopAppBar() {
           setGamesLoaded(true);
         })
         .catch(async (err) => {
-          console.log(err);
+          console.error(err);
           setGamesError(err);
           setGamesLoaded(true);
         });
