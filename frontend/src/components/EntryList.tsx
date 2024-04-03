@@ -1,8 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
 import Accordion from "@mui/material/Accordion";
 import AccordionActions from "@mui/material/AccordionActions";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -10,10 +6,12 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import LinearProgress from "@mui/material/LinearProgress";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { SvgIcon } from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 interface Entry {
   address: number;
@@ -28,6 +26,8 @@ interface Entry {
   dc_progress: number | null;
 }
 
+const isMatching = (entry: Entry) => entry.dc_progress == 100.0 || entry.ez;
+
 function EntryCard({ entry }) {
   const e = entry as Entry;
 
@@ -35,7 +35,7 @@ function EntryCard({ entry }) {
     <Accordion>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <div style={{ flexDirection: "column" }}>
-          <Typography color={e.dc_progress === 100.0 || e.ez ? "#4CAF50" : ""}>
+          <Typography color={isMatching(e) ? "#4CAF50" : ""}>
             {e.name !== null
               ? e.name
               : `func_${e.address.toString(16).padStart(8, "0").toUpperCase()}`}
@@ -62,6 +62,12 @@ export default function EntryList({ gameId, section }) {
   const s = section as string;
   const [data, setData] = useState<Entry[]>([]);
   const [isDataLoaded, setIsDataLoaded] = React.useState(false);
+  const [filter, setFilter] = React.useState("all");
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setFilter(event.target.value as string);
+  };
+
   useEffect(() => {
     fetch(
       `${import.meta.env.VITE_API_URL || "http://localhost:3001"}/entry/${g}/${s}`,
@@ -82,11 +88,36 @@ export default function EntryList({ gameId, section }) {
 
   return (
     <Box sx={{ px: { xl: 64 } }}>
-      {data.map((a, i) => (
-        <Box key={a.address} sx={{ p: 1 }}>
-          <EntryCard entry={a} />
-        </Box>
-      ))}
+      <FormControl>
+        <InputLabel id="demo-simple-select-label">Filter</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={filter}
+          label="Filter"
+          onChange={handleChange}
+        >
+          <MenuItem value={"all"}>All</MenuItem>
+          <MenuItem value={"matching"}>Matching</MenuItem>
+          <MenuItem value={"not_matching"}>Not Matching</MenuItem>
+        </Select>
+      </FormControl>
+      {data
+        .filter((v, _, __) => {
+          switch (filter) {
+            case "all":
+              return true;
+            case "matching":
+              return isMatching(v);
+            case "not_matching":
+              return !isMatching(v);
+          }
+        })
+        .map((a, i) => (
+          <Box key={a.address} sx={{ p: 1 }}>
+            <EntryCard entry={a} />
+          </Box>
+        ))}
     </Box>
   );
 }
