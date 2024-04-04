@@ -28,9 +28,6 @@ function Main() {
           secondary: {
             main: blue[400],
           },
-          error: {
-            main: red.A400,
-          },
         },
       }),
     [prefersDarkMode],

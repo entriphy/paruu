@@ -12,6 +12,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Link from "@mui/material/Link";
 
 interface Entry {
   address: number;
@@ -24,6 +25,7 @@ interface Entry {
   note: string | null;
   dc_id: string | null;
   dc_progress: number | null;
+  source_file: string | null;
 }
 
 const isMatching = (entry: Entry) => entry.dc_progress == 100.0 || entry.ez;
@@ -46,13 +48,39 @@ function EntryCard({ entry }) {
         </div>
       </AccordionSummary>
       <AccordionDetails>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-        malesuada lacus ex, sit amet blandit leo lobortis eget.
+        <ul>
+          <li>
+            <Typography
+              color={
+                e.implemented && e.matching ? "success.main" : "error.main"
+              }
+            >
+              {/* TODO: Add link to source file (have to fetch /game first?) */}
+              {e.implemented ? `Implemented in: ${e.source_file}${!e.matching ? " (Not matching)" : ""}` : "Not implemented"}
+            </Typography>
+          </li>
+          {/* TODO: Implement proper crediting */}
+          {e.ez && (
+            <li>
+              Marked as EZ by{" "}
+              <Link href="https://github.com/entriphy">entriphy</Link>
+            </li>
+          )}
+          {e.dc_id !== null && (
+            <li>
+              decomp.me Scratch:{" "}
+              <Link
+                href={`https://decomp.me/scratch/${e.dc_id}`}
+              >{`https://decomp.me/scratch/${e.dc_id}`}</Link>{" "}
+              ({e.dc_progress?.toFixed(2)}%)
+            </li>
+          )}
+        </ul>
       </AccordionDetails>
-      <AccordionActions>
+      {/* <AccordionActions>
         <Button>Cancel</Button>
         <Button>Agree</Button>
-      </AccordionActions>
+      </AccordionActions> */}
     </Accordion>
   );
 }
@@ -100,6 +128,9 @@ export default function EntryList({ gameId, section }) {
           <MenuItem value={"all"}>All</MenuItem>
           <MenuItem value={"matching"}>Matching</MenuItem>
           <MenuItem value={"not_matching"}>Not Matching</MenuItem>
+          <MenuItem value={"implemented"}>Implemented</MenuItem>
+          <MenuItem value={"not_implemented"}>Not Implemented</MenuItem>
+          <MenuItem value={"implemented+not_matching"}>Implemented + Not Matching</MenuItem>
         </Select>
       </FormControl>
       {data
@@ -111,6 +142,12 @@ export default function EntryList({ gameId, section }) {
               return isMatching(v);
             case "not_matching":
               return !isMatching(v);
+            case "implemented":
+              return v.implemented;
+            case "not_implemented":
+              return !v.implemented;
+            case "implemented+not_matching":
+                return v.implemented && !v.matching;
           }
         })
         .map((a, i) => (
