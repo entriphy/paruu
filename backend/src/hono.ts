@@ -12,6 +12,7 @@ interface Env {
     POSTGRES_USER?: string;
     POSTGRES_PASS?: string;
     POSTGRES_PORT?: string;
+    CORS_ORIGIN?: string;
 }
 
 function createDb(c: Context): Kysely<Database> {
@@ -32,7 +33,13 @@ function createDb(c: Context): Kysely<Database> {
 }
 
 const app = new Hono();
-app.use(cors());
+app.use("*", (c, next) => {
+    const environ: Env = env(c);
+    const wrapped = cors({
+        origin: environ.CORS_ORIGIN ?? "*",
+    })
+    return wrapped(c, next)
+})
 app.get("/", (c: Context) => c.text("rupurudu!"));
 app.get("/game", async (c: Context) => c.json(await (new App(createDb(c), true)).getGames()));
 app.get("/section/:game", async (c: Context) => c.json(await (new App(createDb(c), true)).getSections(c.req.param("game"))));
