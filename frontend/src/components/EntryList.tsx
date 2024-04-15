@@ -22,6 +22,7 @@ import TableHead from "@mui/material/TableHead";
 import Table from "@mui/material/Table";
 import TableRow from "@mui/material/TableRow";
 import TableBody from "@mui/material/TableBody";
+import Tooltip from "@mui/material/Tooltip";
 
 interface Entry {
   address: number;
@@ -39,20 +40,18 @@ interface Entry {
 
 const isMatching = (entry: Entry) => entry.dc_progress == 100.0 || entry.ez;
 
-function EntryCard({ entry }) {
-  const e = entry as Entry;
-
+function EntryCard({ entry }: { entry: Entry }) {
   return (
     <Accordion>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <div style={{ flexDirection: "column" }}>
-          <Typography color={isMatching(e) ? "success.main" : ""}>
-            {e.name !== null
-              ? e.name
-              : `func_${e.address.toString(16).padStart(8, "0").toUpperCase()}`}
+          <Typography color={isMatching(entry) ? "success.main" : ""}>
+            {entry.name !== null
+              ? entry.name
+              : `func_${entry.address.toString(16).padStart(8, "0").toUpperCase()}`}
           </Typography>
           <Typography variant="caption">
-            0x{e.address.toString(16).padStart(8, "0").toUpperCase()}
+            0x{entry.address.toString(16).padStart(8, "0").toUpperCase()}
           </Typography>
         </div>
       </AccordionSummary>
@@ -61,29 +60,31 @@ function EntryCard({ entry }) {
           <li>
             <Typography
               color={
-                e.implemented && e.matching ? "success.main" : "error.main"
+                entry.implemented && entry.matching
+                  ? "success.main"
+                  : "error.main"
               }
             >
               {/* TODO: Add link to source file (have to fetch /game first?) */}
-              {e.implemented
-                ? `Implemented in: ${e.source_file}${!e.matching ? " (Not matching)" : ""}`
+              {entry.implemented
+                ? `Implemented in: ${entry.source_file}${!entry.matching ? " (Not matching)" : ""}`
                 : "Not implemented"}
             </Typography>
           </li>
           {/* TODO: Implement proper crediting */}
-          {e.ez && (
+          {entry.ez && (
             <li>
               Marked as EZ by{" "}
-              <Link href="https://github.com/entriphy">entriphy</Link>
+              <Link href="https://github.com/entriphy" target="_blank">entriphy</Link>
             </li>
           )}
-          {e.dc_id !== null && (
+          {entry.dc_id !== null && (
             <li>
               decomp.me Scratch:{" "}
               <Link
-                href={`https://decomp.me/scratch/${e.dc_id}`}
-              >{`https://decomp.me/scratch/${e.dc_id}`}</Link>{" "}
-              ({e.dc_progress?.toFixed(2)}%)
+                href={`https://decomp.me/scratch/${entry.dc_id}`}
+              >{`https://decomp.me/scratch/${entry.dc_id}`}</Link>{" "}
+              ({entry.dc_progress?.toFixed(2)}%)
             </li>
           )}
         </ul>
@@ -96,13 +97,54 @@ function EntryCard({ entry }) {
   );
 }
 
+function EntryRow({ entry }: { entry: Entry }) {
+  return (
+    <TableRow key={entry.address}>
+      <Tooltip title={entry.note}>
+        <TableCell sx={{ backgroundColor: isMatching(entry) ? "success.main" : "", textDecoration: entry.note !== null ? "underline" : undefined, textDecorationStyle: "dotted" }}>
+          0x{entry.address.toString(16).padStart(8, "0").toUpperCase()}
+        </TableCell>
+      </Tooltip>
+      
+      <TableCell sx={{ fontFamily: "monospace" }}>
+        {entry.name !== null && entry.name}
+      </TableCell>
+      {/* TODO: Implement checkbox for project admins */}
+      <TableCell align="center">
+        <Checkbox disabled checked={entry.implemented}></Checkbox>
+      </TableCell>
+      <TableCell align="center">
+        <Checkbox disabled checked={entry.matching}></Checkbox>
+      </TableCell>
+      <TableCell align="center">
+        {/* <CircularProgress size="2rem" /> */}
+        <Checkbox disabled checked={entry.ez}></Checkbox>
+      </TableCell>
+      <TableCell sx={{ fontFamily: "monospace" }}>
+        {entry.source_file !== null && entry.source_file}
+      </TableCell>
+      <TableCell>
+        {entry.dc_id !== null && (
+          <>
+            <Link href={`https://decomp.me/scratch/${entry.dc_id}`} target="_blank">
+              {entry.dc_id}
+            </Link>{" "}
+            ({entry.dc_progress?.toFixed(2)}%)
+          </>
+        )}
+        {entry.dc_id === null && !entry.ez && <Button variant="outlined">Create</Button>}
+      </TableCell>
+    </TableRow>
+  );
+}
+
 export default function EntryList({ gameId, section }) {
   const g = gameId as string;
   const s = section as string;
   const [data, setData] = useState<Entry[]>([]);
   const [isDataLoaded, setIsDataLoaded] = React.useState(false);
   const [filter, setFilter] = React.useState("all");
-  const [tableView, setTableView] = React.useState(false);
+  const [tableView, setTableView] = React.useState(true);
 
   const handleChange = (event: SelectChangeEvent) => {
     setFilter(event.target.value as string);
@@ -123,7 +165,7 @@ export default function EntryList({ gameId, section }) {
       case "implemented+not_matching":
         return e.implemented && !e.matching;
     }
-  }
+  };
 
   useEffect(() => {
     fetch(
@@ -199,36 +241,7 @@ export default function EntryList({ gameId, section }) {
               {data
                 .filter((v, _, __) => entryFilter(v))
                 .map((e, i) => (
-                  <TableRow key={e.address}>
-                    <TableCell>
-                      0x{e.address.toString(16).padStart(8, "0").toUpperCase()}
-                    </TableCell>
-                    <TableCell>{e.name !== null && e.name}</TableCell>
-                    {/* TODO: Implement checkbox for project admins */}
-                    <TableCell align="center">
-                      <Checkbox disabled checked={e.implemented}></Checkbox>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Checkbox disabled checked={e.matching}></Checkbox>
-                    </TableCell>
-                    <TableCell align="center">
-                      {/* <CircularProgress size="2rem" /> */}
-                      <Checkbox disabled checked={e.ez}></Checkbox>
-                    </TableCell>
-                    <TableCell>
-                      {e.source_file !== null && e.source_file}
-                    </TableCell>
-                    <TableCell>
-                      {e.dc_id !== null && (
-                        <>
-                          <Link href={`https://decomp.me/scratch/${e.dc_id}`}>
-                            {e.dc_id}
-                          </Link>{" "}
-                          ({e.dc_progress?.toFixed(2)}%)
-                        </>
-                      )}
-                    </TableCell>
-                  </TableRow>
+                  <EntryRow entry={e} />
                 ))}
             </TableBody>
           </Table>
