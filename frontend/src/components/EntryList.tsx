@@ -38,7 +38,7 @@ interface Entry {
   source_file: string | null;
 }
 
-const isMatching = (entry: Entry) => entry.dc_progress == 100.0 || entry.ez;
+const isMatching = (entry: Entry) => entry.dc_progress == 100.0 || entry.ez || entry.matching;
 
 function EntryCard({ entry }: { entry: Entry }) {
   return (
