@@ -14,6 +14,7 @@ app.get("/game", async (req: Request, res: Response) => { res.json(await server.
 app.get("/section/:game", async (req: Request, res: Response) => { res.json((await server.getSections(req.params.game))); });
 app.get("/entry/:game/:section", async (req: Request, res: Response) => { res.json(await server.getEntries(req.params.game, req.params.section)); });
 app.post("/entry/:game", async (req: Request, res: Response) => { res.json(await server.updateEntries(req.params.game, req.body, req.headers.authorization || "")); });
+app.get("/badge/:game", async (req: Request, res: Response) => { res.json((await server.getProgressBadge(req.params.game))); });
 
 const port = parseInt(process.env.PARUU_PORT || "3001")
 app.listen(port, () => {

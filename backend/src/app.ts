@@ -51,7 +51,7 @@ export default class App {
                         CAST(COUNT(address) AS INT) AS total
                     FROM entry
                     GROUP BY game_id, section) e ON section.game_id = e.game_id AND section.id = e.section
-            WHERE section.game_id = 'lv'
+            WHERE section.game_id = ${game}
             GROUP BY section.id, section.game_id, e.decomp, e.total
         `;
 
@@ -103,6 +103,36 @@ export default class App {
         if (this.destroyAfterReq) await this.destroy();
 
         return {"success": true};
+    }
+
+    public async getProgressBadge(game: string) {
+        const query = sql<DecompStats>`
+            SELECT
+                COALESCE(f.decomp, 0) AS decomp,
+                COALESCE(f.total, 0) AS total
+            FROM game
+            LEFT JOIN (SELECT 
+                        game_id, 
+                        CAST(SUM(CASE WHEN entry.matching OR entry.ez OR entry.dc_progress = 100.0 THEN 1 ELSE 0 END) AS INT) as decomp,
+                        CAST(COUNT(entry.address) AS INT) AS total
+                    FROM entry
+                    GROUP BY game_id) f on game.id = f.game_id
+            LEFT JOIN (SELECT 
+                        game_id, 
+                        json_object_agg(id, name) as sections
+                    FROM section
+                    GROUP BY section.game_id) g ON game.id = g.game_id
+            WHERE game.id = ${game}
+        `;
+
+        const res = (await query.execute(this.db)).rows[0];
+        if (this.destroyAfterReq) await this.destroy();
+        return {
+            "schemaVersion": 1,
+            "label": `${game} Progress`,
+            "message": `${((res.decomp / res.total) * 100.0).toPrecision(4)}%`,
+            "color": "informational"
+        }
     }
 
     public async destroy() {

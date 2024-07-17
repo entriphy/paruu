@@ -45,5 +45,6 @@ app.get("/game", async (c: Context) => c.json(await (new App(createDb(c), true))
 app.get("/section/:game", async (c: Context) => c.json(await (new App(createDb(c), true)).getSections(c.req.param("game"))));
 app.get("/entry/:game/:section", async (c: Context) => c.json(await (new App(createDb(c), true)).getEntries(c.req.param("game"), c.req.param("section"))));
 app.post("/entry/:game", async (c: Context) => c.json(await (new App(createDb(c), true)).updateEntries(c.req.param("game"), await c.req.json(), c.req.header("Authorization") || "")));
+app.get("/badge/:game", async (c: Context) => c.json(await (new App(createDb(c), true)).getProgressBadge(c.req.param("game"))));
 
 export default app;
